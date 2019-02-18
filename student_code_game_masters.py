@@ -184,6 +184,74 @@ class Puzzle8Game(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### Student code goes here
+        state = []
+        # Row 1
+        row1 = []
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos1'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row1.append(int(string[-1:]))
+        else:
+            row1.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos1'))
+        print(matches)
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row1.append(int(string[-1:]))
+        else:
+            row1.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos1'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row1.append(int(string[-1:]))
+        else:
+            row1.append(-1)
+        state.append(tuple(row1))
+        # Row 2    
+        row2 = []
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos2'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row2.append(int(string[-1:]))
+        else:
+            row2.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos2'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row2.append(int(string[-1:]))
+        else:
+            row2.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos2'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row2.append(int(string[-1:]))
+        else:
+            row2.append(-1)
+        state.append(tuple(row2))
+        # Row 3         
+        row3 = []
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos3'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row3.append(int(string[-1:]))
+        else:
+            row3.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos3'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row3.append(int(string[-1:]))
+        else:
+            row3.append(-1)
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos3'))
+        string = matches[0].bindings_dict['?tile']
+        if string != 'empty':
+            row3.append(int(string[-1:]))
+        else:
+            row3.append(-1)
+        state.append(tuple(row3))  
+        return tuple(state)       
+        
+
         
 
     def makeMove(self, movable_statement):
@@ -203,7 +271,22 @@ class Puzzle8Game(GameMaster):
             None
         """
         ### Student code goes here
-        pass
+        tilem = movable_statement.terms[0]
+        old_x = movable_statement.terms[1]
+        old_y = movable_statement.terms[2]
+        new_x = movable_statement.terms[3]
+        new_y = movable_statement.terms[4]
+        # What was in the target position before
+        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile '+str(new_x)+' '+str(new_y)+')'))
+        old_tile = matches[0].bindings_dict['?tile']
+        # Retract old position
+        self.kb.kb_retract(parse_input('fact: (coord '+str(tilem)+' '+str(old_x)+' '+str(old_y)+')'))
+        self.kb.kb_retract(parse_input('fact: (coord '+old_tile+' '+str(new_x)+' '+str(new_y)+')'))
+        # Assert new position
+        self.kb.kb_assert(parse_input('fact: (coord '+str(tilem)+' '+str(new_x)+' '+str(new_y)+')'))
+        self.kb.kb_assert(parse_input('fact: (coord '+old_tile+' '+str(old_x)+' '+str(old_y)+')'))
+
+        
 
     def reverseMove(self, movable_statement):
         """
