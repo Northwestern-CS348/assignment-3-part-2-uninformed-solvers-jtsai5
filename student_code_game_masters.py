@@ -184,7 +184,7 @@ class Puzzle8Game(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### Student code goes here
-        pass
+        
 
     def makeMove(self, movable_statement):
         """
