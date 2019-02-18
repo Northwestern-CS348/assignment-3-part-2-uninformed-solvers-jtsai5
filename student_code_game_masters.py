@@ -1,6 +1,7 @@
 from game_master import GameMaster
 from read import *
 from util import *
+import pdb
 
 class TowerOfHanoiGame(GameMaster):
 
@@ -34,7 +35,53 @@ class TowerOfHanoiGame(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### student code goes here
-        pass
+        # State is the Tuple of Tuples being returned
+        state = []
+        # peg1's tuple
+        diskson1 = []
+        # Ask kb which disks bind to ?disk as being on peg1
+        matches = self.kb.kb_ask(parse_input('fact: (on ?disk peg1)'))
+        # If peg1 isn't empty
+        if matches != False:
+            for m in matches:
+                string = m.bindings_dict['?disk']
+                diskson1.append(int(string[-1:]))
+                #print(diskson1)
+            diskson1.sort()
+                #print(diskson1)
+            state.append(tuple(diskson1))
+        # If empty, add in empty tuple
+        else:
+            state.append(())
+        # Check if peg2 empty
+        diskson2 = []
+        matches = self.kb.kb_ask(parse_input('fact: (on ?disk peg2)'))
+        if matches != False:                
+            for m in matches:
+                string = m.bindings_dict['?disk']
+                diskson2.append(int(string[-1:]))
+                #print(diskson2)
+            diskson2.sort()
+            state.append(tuple(diskson2))
+        # If empty, add in empty tuple
+        else:
+            state.append(())
+        # Check if peg3 empty     
+        diskson3 = []
+        matches = self.kb.kb_ask(parse_input('fact: (on ?disk peg3)'))
+        if matches != False:
+            for m in matches:
+                string = m.bindings_dict['?disk']
+                diskson3.append(int(string[-1:]))
+                    #print(diskson3)
+            diskson3.sort()
+            state.append(tuple(diskson3))
+        # If empty, add in empty tuple
+        else:
+            state.append(())
+        # Return the tuple of tuples
+        return tuple(state)
+
 
     def makeMove(self, movable_statement):
         """
@@ -53,7 +100,44 @@ class TowerOfHanoiGame(GameMaster):
             None
         """
         ### Student code goes here
-        pass
+        if movable_statement.predicate != "movable":
+            pass
+        else:
+            # Extract variables/constants from terms in the statement
+            #pdb.set_trace()
+            sl = movable_statement.terms
+            # sl[0] = disk being moved, sl[1] = initial peg, sl[2] = target peg
+            #newList = [sl[0], sl[1], sl[2]]
+            # Store disk the one being moved is on top of
+            matches = self.kb.kb_ask(parse_input('fact: (ontopof '+str(sl[0])+' ?disk)'))
+            if matches != False:
+                disk_under = matches[0].bindings_dict['?disk']
+                self.kb.kb_retract(parse_input('fact: (ontopof '+str(sl[0])+' '+disk_under+')'))
+            else:
+                pass
+            #pdb.set_trace()
+            #print(disk_under)
+            # Store top disk of target peg, used to split for if it's none or actual disk
+            matches2 = self.kb.kb_add(parse_input('fact: (topdiskof '+str(sl[2])+' ?disk)'))
+            # Facts to retract
+            self.kb.kb_retract(parse_input('fact: (on '+str(sl[0])+' '+str(sl[1])+')'))
+            self.kb.kb_retract(parse_input('fact: (topdiskof '+str(sl[1])+' '+str(sl[0])+')'))
+            if matches2:
+                target_top = matches2[0].bindings_dict['?disk']
+                self.kb.kb_retract(parse_input('fact: (topdiskof '+str(sl[2])+' '+target_top+')'))
+            else: 
+                pass
+            # Facts to assert
+            self.kb.kb_assert(parse_input('fact: (on '+str(sl[0])+' '+str(sl[2])+')'))
+            self.kb.kb_assert(parse_input('fact: (topdiskof '+str(sl[2])+' '+str(sl[0])+')'))
+            if matches2:
+                target_top = matches2[0].bindings_dict['?disk']
+                self.kb.kb_assert(parse_input('fact: (ontopof '+str(sl[0])+' '+target_top+')'))
+            else: 
+                pass
+
+
+        
 
     def reverseMove(self, movable_statement):
         """
