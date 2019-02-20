@@ -23,18 +23,22 @@ fact: (on disk2 peg1)
 fact: (on disk3 peg1)
 fact: (on disk4 peg1)
 fact: (on disk5 peg1)
+
 fact: (ontopof disk1 disk2)
 fact: (ontopof disk2 disk3)
 fact: (ontopof disk 3 disk4)
 fact: (ontopof disk4 disk5)
+
 fact: (topdiskof peg1 disk1)
-fact: (topdiskof peg2 none)
-fact: (topdiskof peg3 none)
+
+fact: (empty peg2)
+fact: (empty peg3)
+
 fact: (smaller disk1 disk2)
 fact: (smaller disk2 disk3)
 fact: (smaller disk3 disk4)
 fact: (smaller disk4 disk5)
 
 rule: ((smaller ?d1 ?d2) (smaller ?d2 ?d3)) -> (smaller ?d1 ?d3)
-rule: ((topdiskof ?p1 none) (topdiskof ?p2 ?d1)) -> (movable ?d1 ?p2 ?p1)
+rule: ((empty ?p1) (topdiskof ?p2 ?d1)) -> (movable ?d1 ?p2 ?p1)
 rule: ((topdiskof ?p1 ?d1) (smaller ?d2 ?d1) (topdiskof ?p2 ?d2)) -> (movable ?d2 ?p2 ?p1)
