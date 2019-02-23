@@ -93,44 +93,44 @@ class TowerOfHanoiGame(GameMaster):
             None
         """
         ### Student code goes here
-        if movable_statement.predicate != "movable":
-            pass
-        else:
-            # Extract variables/constants from terms in the statement
-            #pdb.set_trace()
+        if self.isMovableLegal(movable_statement) == True:
+        # Extract variables/constants from terms in the statement
+        #pdb.set_trace()
             sl = movable_statement.terms
-            # sl[0] = disk being moved, sl[1] = initial peg, sl[2] = target peg
-            #newList = [sl[0], sl[1], sl[2]]
             # Store disk the one being moved is on top of
             matches = self.kb.kb_ask(parse_input('fact: (ontopof '+str(sl[0])+' ?disk)'))
-            if matches != False:
+            if matches:
                 disk_under = matches[0].bindings_dict['?disk']
                 self.kb.kb_retract(parse_input('fact: (ontopof '+str(sl[0])+' '+disk_under+')'))
-            else:
-                pass
             #pdb.set_trace()
             #print(disk_under)
-            # Store top disk of target peg, used to split for if it's none or actual disk
-            matches2 = self.kb.kb_add(parse_input('fact: (topdiskof '+str(sl[2])+' ?disk)'))
-            # Facts to retract
-            self.kb.kb_retract(parse_input('fact: (on '+str(sl[0])+' '+str(sl[1])+')'))
-            self.kb.kb_retract(parse_input('fact: (topdiskof '+str(sl[1])+' '+str(sl[0])+')'))
+            # Store top disk of target peg to retract if any
+            matches2 = self.kb.kb_ask(parse_input('fact: (topdiskof '+str(sl[2])+' ?disk)'))
             if matches2:
                 target_top = matches2[0].bindings_dict['?disk']
                 self.kb.kb_retract(parse_input('fact: (topdiskof '+str(sl[2])+' '+target_top+')'))
             else: 
-                pass
+                self.kb.kb_retract(parse_input('fact: (empty '+str(sl[2])+')'))
+            # Disk no longer on initial peg - retract the on and topdiskof facts
+            self.kb.kb_retract(parse_input('fact: (on '+str(sl[0])+' '+str(sl[1])+')'))
+            self.kb.kb_retract(parse_input('fact: (topdiskof '+str(sl[1])+' '+str(sl[0])+')'))
+
             # Facts to assert
             self.kb.kb_assert(parse_input('fact: (on '+str(sl[0])+' '+str(sl[2])+')'))
             self.kb.kb_assert(parse_input('fact: (topdiskof '+str(sl[2])+' '+str(sl[0])+')'))
+            if matches:
+                disk_under = matches[0].bindings_dict['?disk']
+                self.kb.kb_assert(parse_input('fact: (topdiskof '+str(sl[1])+' '+disk_under+')'))
             if matches2:
                 target_top = matches2[0].bindings_dict['?disk']
                 self.kb.kb_assert(parse_input('fact: (ontopof '+str(sl[0])+' '+target_top+')'))
-            else: 
-                pass
+            checker = self.kb.kb_ask(parse_input('fact: (on ?disk '+str(sl[1])+')'))
+            if checker == False:
+                self.kb.kb_assert(parse_input('fact: (empty '+str(sl[1])+')'))
 
 
-        
+
+            
 
     def reverseMove(self, movable_statement):
         """
@@ -174,73 +174,74 @@ class Puzzle8Game(GameMaster):
         ### Student code goes here
         state = []
         # Row 1
-        row1 = []
+        row1 = ['a', 'a', 'a', 'a']
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos1'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row1.append(int(string[-1:]))
+        num1 = matches[0].bindings_dict['?tile']
+        if num1 != 'empty':
+            row1.insert(3, int(num1[-1:]))
         else:
-            row1.append(-1)
+            row1.insert(3, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos1'))
-        print(matches)
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row1.append(int(string[-1:]))
+        num2 = matches[0].bindings_dict['?tile']
+        if num2 != 'empty':
+            row1.insert(4, int(num2[-1:]))
         else:
-            row1.append(-1)
+            row1.insert(4, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos1'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row1.append(int(string[-1:]))
+        num3 = matches[0].bindings_dict['?tile']
+        if num3 != 'empty':
+            row1.insert(5, int(num3[-1:]))
         else:
-            row1.append(-1)
-        state.append(tuple(row1))
+            row1.insert(5, -1)
+        row1 = [x for x in row1 if x != 'a'] 
+        row1 = tuple(row1)
         # Row 2    
-        row2 = []
+        row2 = ['a', 'a', 'a', 'a']
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos2'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row2.append(int(string[-1:]))
+        num4 = matches[0].bindings_dict['?tile']
+        if num4 != 'empty':
+            row2.insert(3, int(num4[-1:]))
         else:
-            row2.append(-1)
+            row2.insert(3, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos2'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row2.append(int(string[-1:]))
+        num5 = matches[0].bindings_dict['?tile']
+        if num5 != 'empty':
+            row2.insert(4, int(num5[-1:]))
         else:
-            row2.append(-1)
+            row2.insert(4, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos2'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row2.append(int(string[-1:]))
+        num6 = matches[0].bindings_dict['?tile']
+        if num6 != 'empty':
+            row2.insert(5, int(num6[-1:]))
         else:
-            row2.append(-1)
-        state.append(tuple(row2))
+            row2.insert(5, -1)
+        row2 = [x for x in row2 if x != 'a'] 
+        row2 = tuple(row2)
         # Row 3         
-        row3 = []
+        row3 = ['a', 'a', 'a', 'a']
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos1 pos3'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row3.append(int(string[-1:]))
+        num7 = matches[0].bindings_dict['?tile']
+        if num7 != 'empty':
+            row3.insert(3, int(num7[-1:]))
         else:
-            row3.append(-1)
+            row3.insert(3, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos2 pos3'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row3.append(int(string[-1:]))
+        num8 = matches[0].bindings_dict['?tile']
+        if num8 != 'empty':
+            row3.insert(4, int(num8[-1:]))
         else:
-            row3.append(-1)
+            row3.insert(4, -1)
         matches = self.kb.kb_ask(parse_input('fact: (coord ?tile pos3 pos3'))
-        string = matches[0].bindings_dict['?tile']
-        if string != 'empty':
-            row3.append(int(string[-1:]))
+        num9 = matches[0].bindings_dict['?tile']
+        if num9 != 'empty':
+            row3.insert(5, int(num9[-1:]))
         else:
-            row3.append(-1)
-        state.append(tuple(row3))  
-        return tuple(state)       
-        
-
-        
+            row3.insert(5, -1)
+        #print(row3)
+        row3 = [x for x in row3 if x != 'a'] 
+        row3 = tuple(row3)
+        state = (row1, row2, row3)
+        return state
 
     def makeMove(self, movable_statement):
         """
@@ -256,22 +257,19 @@ class Puzzle8Game(GameMaster):
             None
         """
         ### Student code goes here
+        #if self.isMovableLegal(movable_statement) == True and movable_statement.predicate == 'movable': 
         tilem = movable_statement.terms[0]
         old_x = movable_statement.terms[1]
         old_y = movable_statement.terms[2]
         new_x = movable_statement.terms[3]
         new_y = movable_statement.terms[4]
-        # What was in the target position before
-        matches = self.kb.kb_ask(parse_input('fact: (coord ?tile '+str(new_x)+' '+str(new_y)+')'))
-        old_tile = matches[0].bindings_dict['?tile']
         # Retract old position
-        self.kb.kb_retract(parse_input('fact: (coord '+str(tilem)+' '+str(old_x)+' '+str(old_y)+')'))
-        self.kb.kb_retract(parse_input('fact: (coord '+old_tile+' '+str(new_x)+' '+str(new_y)+')'))
+        self.kb.kb_retract(Fact(Statement(["coord", tilem, old_x, old_y])))
+        self.kb.kb_retract(Fact(Statement(["coord", "empty", new_x, new_y])))
         # Assert new position
-        self.kb.kb_assert(parse_input('fact: (coord '+str(tilem)+' '+str(new_x)+' '+str(new_y)+')'))
-        self.kb.kb_assert(parse_input('fact: (coord '+old_tile+' '+str(old_x)+' '+str(old_y)+')'))
-
-        
+        self.kb.kb_assert(Fact(Statement(["coord", tilem, new_x, new_y])))
+        self.kb.kb_assert(Fact(Statement(["coord", "empty", old_x, old_y])))
+        return
 
     def reverseMove(self, movable_statement):
         """

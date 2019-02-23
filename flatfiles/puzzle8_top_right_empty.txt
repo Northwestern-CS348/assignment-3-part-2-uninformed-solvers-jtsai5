@@ -27,13 +27,12 @@ fact: (coord tile3 pos2 pos3)
 fact: (coord tile2 pos3 pos3)
 fact: (coord empty pos3 pos1)
 
-rule: ((coord ?a ?posx ?posy) (coord ?b ?posx pos2)) -> (adjacent ?a ?b)
-rule: ((coord ?a ?posx pos2) (coord ?b ?posx ?posy)) -> (adjacent ?a ?b)
-rule: ((coord ?a ?posx ?posy) (coord ?b pos2 ?posy)) -> (adjacent ?a ?b)
-rule: ((coord ?a pos2 ?posy) (coord ?b ?posx ?posy)) -> (adjacent ?a ?b)
-rule: (adjacent ?a ?b) -> (adjacent ?b ?a)
+rule: ((coord ?a ?x pos2) (coord ?b ?x ?y)) -> (adjacent ?a ?b)
+rule: ((coord ?a pos2 ?y) (coord ?b ?x ?y)) -> (adjacent ?a ?b)
+rule: ((coord ?a ?x pos2) (coord ?b ?x ?y)) -> (adjacent ?b ?a)
+rule: ((coord ?a pos2 ?y) (coord ?b ?x ?y)) -> (adjacent ?b ?a)
 
-rule: ((coord ?a ?posx ?posy) (adjacent ?a empty) (coord empty ?posx1 ?posy1)) -> (movable ?a ?posx ?posy ?posx1 ?posy1)
+rule: ((adjacent ?a empty) (coord ?a ?x ?y) (coord empty ?ex ?ey)) -> (movable ?a ?x ?y ?ex ?ey)
 
 
 
